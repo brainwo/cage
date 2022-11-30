@@ -6,11 +6,16 @@ enum Token {
     Sub,
     Mul,
     Div,
-    Number(usize),
+    Number(f64),
 }
 
 fn tokenize(code: &str) -> Vec<Token> {
-    code.split_whitespace()
+    code.split_inclusive(['(', ')', '+', '-', '*', '/'])
+        .map(str::to_string)
+        .inspect(|x| println!("{x}"))
+        .collect::<Vec<String>>()
+        .join(" ")
+        .split_whitespace()
         .map(|token| match token {
             "(" => Token::OpenBracket,
             ")" => Token::CloseBracket,
@@ -18,16 +23,19 @@ fn tokenize(code: &str) -> Vec<Token> {
             "-" => Token::Sub,
             "*" => Token::Mul,
             "/" => Token::Div,
-            token => match token.parse::<usize>() {
-                Ok(number) => Token::Number(number),
-                Err(err) => panic!("(TOKENIZE) Unable to parse: {err}"),
-            },
+            token => {
+                println!("{token}");
+                match token.parse::<f64>() {
+                    Ok(number) => Token::Number(number),
+                    Err(err) => panic!("(TOKENIZE) Unable to parse: {err}"),
+                }
+            }
         })
         .collect()
 }
 
 fn main() {
-    let code = "( + 1 ( * 2 2 5 ) )";
+    let code = "(+ 1 (* 2 2 5))";
 
     let stack: Vec<Token> = tokenize(code);
 
@@ -52,7 +60,7 @@ fn main() {
                     Token::Number(num) => Some(num),
                     _ => None,
                 })
-                .collect::<Vec<usize>>();
+                .collect::<Vec<f64>>();
 
             if process_stack.is_empty() {
                 process_stack.push(Vec::new());
