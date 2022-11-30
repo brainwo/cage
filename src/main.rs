@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Token {
     OpenBracket,
     CloseBracket,
@@ -12,7 +12,6 @@ enum Token {
 fn tokenize(code: &str) -> Vec<Token> {
     code.split_inclusive(['(', ')', '+', '-', '*', '/'])
         .map(str::to_string)
-        .inspect(|x| println!("{x}"))
         .collect::<Vec<String>>()
         .join(" ")
         .split_whitespace()
@@ -23,20 +22,15 @@ fn tokenize(code: &str) -> Vec<Token> {
             "-" => Token::Sub,
             "*" => Token::Mul,
             "/" => Token::Div,
-            token => {
-                println!("{token}");
-                match token.parse::<f64>() {
-                    Ok(number) => Token::Number(number),
-                    Err(err) => panic!("(TOKENIZE) Unable to parse: {err}"),
-                }
-            }
+            token => match token.parse::<f64>() {
+                Ok(number) => Token::Number(number),
+                Err(err) => panic!("(TOKENIZE) Unable to parse: {err}"),
+            },
         })
         .collect()
 }
 
-fn main() {
-    let code = "(+ 1 (* 2 2 5))";
-
+fn compile(code: &str) -> Vec<Vec<Token>> {
     let stack: Vec<Token> = tokenize(code);
 
     let mut process_stack: Vec<Vec<Token>> = Vec::new();
@@ -84,5 +78,29 @@ fn main() {
         }
     });
 
-    println!("{process_stack:?}");
+    process_stack
+}
+
+fn main() {
+    let code = "(+ 1 (* 2 2 5 ))";
+    println!("{:?}", compile(code));
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{compile, Token};
+
+    #[test]
+    fn with_explicit_whitespace() {
+        let code = "( + 1 2 ( * 2 2 5 ) )";
+        let result = compile(code);
+        assert_eq!(result, [[Token::Number(23.)]]);
+    }
+
+    #[test]
+    fn without_whitespace() {
+        let code = "(+ 1 2 (* 2 2 5))";
+        let result = compile(code);
+        assert_eq!(result, [[Token::Number(23.)]]);
+    }
 }
