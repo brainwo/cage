@@ -1,18 +1,6 @@
 use cage::*;
 
 #[test]
-fn aritmetic_operations() {
-    let code = "(+ 10 38 (- 60 (/ 20 (* 100 20 ))))";
-
-    let result = eval(code);
-
-    assert!(result.is_ok());
-    if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(107.99000000000001)]]);
-    }
-}
-
-#[test]
 fn equal() {
     let code = "(= 10 10 10 10)";
 
@@ -24,6 +12,48 @@ fn equal() {
     }
 
     let code = "(= 10 42 10 10)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_ne!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+}
+
+#[test]
+fn not_equal() {
+    let code = "(!= 10 42 10 10)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_eq!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+
+    let code = "(!= 10 10 10 10)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_ne!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+}
+
+#[test]
+fn greater_than() {
+    let code = "(> 30 20 10)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_eq!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+
+    let code = "(> 10 42 30)";
 
     let result = eval(code);
 
@@ -55,8 +85,8 @@ fn less_than() {
 }
 
 #[test]
-fn greater_than() {
-    let code = "(> 30 20 10)";
+fn greater_equal() {
+    let code = "(>= 30 30 10)";
 
     let result = eval(code);
 
@@ -65,7 +95,28 @@ fn greater_than() {
         assert_eq!(result.unwrap(), [[Token::Bool(true)]]);
     }
 
-    let code = "(> 10 42 30)";
+    let code = "(>= 10 42 30)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_ne!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+}
+
+#[test]
+fn less_equal() {
+    let code = "(<= 10 10 30)";
+
+    let result = eval(code);
+
+    assert!(result.is_ok());
+    if result.is_ok() {
+        assert_eq!(result.unwrap(), [[Token::Bool(true)]]);
+    }
+
+    let code = "(<= 10 42 30)";
 
     let result = eval(code);
 

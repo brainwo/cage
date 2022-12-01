@@ -50,7 +50,7 @@ fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
                 "/" => Token::Div,
                 "%" => Token::Mod,
                 "=" => Token::Eql,
-                "/=" => Token::Neql,
+                "!=" => Token::Neql,
                 ">" => Token::Gt,
                 "<" => Token::Lt,
                 ">=" => Token::Ge,
@@ -158,6 +158,12 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                     )),
                     Token::Eql => process_stack.last_mut().unwrap().push(Token::Bool(
                         list.first()
+                            .map(|first| list.iter().all(|item| item == first))
+                            .unwrap_or(true),
+                    )),
+                    Token::Neql => process_stack.last_mut().unwrap().push(Token::Bool(
+                        !list
+                            .first()
                             .map(|first| list.iter().all(|item| item == first))
                             .unwrap_or(true),
                     )),
