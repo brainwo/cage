@@ -12,3 +12,7 @@ version = "0.1.0"
 dependencies = [
  "wage",
 ]
+
+[[package]]
+name = "wage_wasm"
+version = "0.1.0"

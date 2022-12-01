@@ -1,0 +1,7 @@
+(import w4)
+
+(export update ()
+    (DRAW_COLORS 3)
+    (text "  Gamepads 1 to 4\nto move each player" 4 64)
+    (for (a 4) (print a))
+)

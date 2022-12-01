@@ -27,7 +27,8 @@ pub enum Token {
     Or,
     Not,
     // Number and variables
-    Number(f64),
+    Float(f32),
+    Double(f64),
     Bool(bool),
     String(String),
     // Input output
@@ -69,7 +70,11 @@ fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
                         return Ok(Token::String(token.replace('\"', "")));
                     }
                     let parse = token.parse::<f64>()?;
-                    Token::Number(parse)
+                    if parse >= f32::MIN.into() && parse <= f32::MAX.into() {
+                        Token::Float(parse as f32)
+                    } else {
+                        Token::Double(parse)
+                    }
                 }
             })
         })
@@ -122,7 +127,7 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                     })?
                     .push(token);
             }
-            Token::Number(_) | Token::Bool(_) | Token::String(_) => {
+            Token::Float(_) | Token::Double(_) | Token::Bool(_) | Token::String(_) => {
                 if process_stack
                     .last()
                     .ok_or(UnexpectedToken {
@@ -155,7 +160,7 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                     let list = pop
                         .into_iter()
                         .filter_map(|token| match token {
-                            Token::Number(num) => Some(num.to_string()),
+                            Token::Double(num) => Some(num.to_string()),
                             Token::Bool(bool) => Some(bool.to_string()),
                             Token::String(string) => Some(string),
                             _ => None,
@@ -170,7 +175,8 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                 let list = pop
                     .into_iter()
                     .filter_map(|token| match token {
-                        Token::Number(num) => Some(num),
+                        Token::Float(num) => Some(num.into()),
+                        Token::Double(num) => Some(num),
                         _ => None,
                     })
                     .collect::<Vec<f64>>();
@@ -180,19 +186,19 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                 }
 
                 match instruction {
-                    Token::Add => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Add => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter().reduce(|acc, item| acc + item).unwrap(),
                     )),
-                    Token::Sub => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Sub => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter().reduce(|acc, item| acc - item).unwrap(),
                     )),
-                    Token::Mul => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Mul => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter().reduce(|acc, item| acc * item).unwrap(),
                     )),
-                    Token::Div => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Div => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter().reduce(|acc, item| acc / item).unwrap(),
                     )),
-                    Token::Mod => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Mod => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter().reduce(|acc, item| acc % item).unwrap(),
                     )),
                     Token::Eql => process_stack.last_mut().unwrap().push(Token::Bool(
@@ -218,12 +224,12 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                     Token::Le => process_stack.last_mut().unwrap().push(Token::Bool(
                         list.windows(2).all(|item| item.first() <= item.last()),
                     )),
-                    Token::Max => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Max => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter()
                             .reduce(|acc, item| if acc >= item { acc } else { item })
                             .unwrap(),
                     )),
-                    Token::Min => process_stack.last_mut().unwrap().push(Token::Number(
+                    Token::Min => process_stack.last_mut().unwrap().push(Token::Double(
                         list.into_iter()
                             .reduce(|acc, item| if acc >= item { item } else { acc })
                             .unwrap(),

@@ -12,7 +12,7 @@ fn main() {
         match eval(input.trim()) {
             Ok(eval) => eval.iter().for_each(|stack| {
                 stack.iter().for_each(|e| match e {
-                    Token::Number(n) => println!("\x1B[33m{n}\x1B[0m"),
+                    Token::Float(n) => println!("\x1B[33m{n}\x1B[0m"),
                     Token::Bool(b) => println!("\x1B[33m{b}\x1B[0m"),
                     _ => println!("{e:?}"),
                 })
@@ -41,7 +41,7 @@ fn main() {
         match eval(input.trim()) {
             Ok(eval) => eval.iter().for_each(|stack| {
                 stack.iter().for_each(|e| match e {
-                    Token::Number(n) => println!("\x1B[33m{n}\x1B[0m"),
+                    Token::Float(n) => println!("\x1B[33m{n}\x1B[0m"),
                     Token::Bool(b) => println!("\x1B[33m{b}\x1B[0m"),
                     _ => println!("{e:?}"),
                 })

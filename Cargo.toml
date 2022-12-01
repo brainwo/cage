@@ -2,10 +2,16 @@
 name = "wage"
 version = "0.1.0"
 edition = "2021"
+license = "WIP: A minimal Lisp language targeting WebAssembly"
+homepage = "https://github.com/brainwo/wage"
+repository = "https://github.com/brainwo/wage"
+readme = "README.md"
+authors = ["Brian Wo <45139213+brainwo@users.noreply.github.com>"]
 
 [dependencies]
 
 [workspace]
 members = [
-   "repl"
+   "repl",
+   "wasm"
 ]

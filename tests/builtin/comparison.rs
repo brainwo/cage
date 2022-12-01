@@ -134,7 +134,7 @@ fn max() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(30.)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(30.)]]);
     }
 }
 
@@ -146,6 +146,6 @@ fn min() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(10.)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(10.)]]);
     }
 }

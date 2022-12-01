@@ -8,7 +8,7 @@ fn addition() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(42.)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(42.)]]);
     }
 
     let code = "(+ 34 35)";
@@ -17,7 +17,7 @@ fn addition() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_ne!(result.unwrap(), [[Token::Number(42.)]]);
+        assert_ne!(result.unwrap(), [[Token::Double(42.)]]);
     }
 }
 
@@ -29,7 +29,7 @@ fn substraction() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(0.)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(0.)]]);
     }
 
     let code = "(- 34 35)";
@@ -38,7 +38,7 @@ fn substraction() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_ne!(result.unwrap(), [[Token::Number(0.)]]);
+        assert_ne!(result.unwrap(), [[Token::Double(0.)]]);
     }
 }
 
@@ -50,7 +50,7 @@ fn multiplication() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(42.)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(42.)]]);
     }
 
     let code = "(* 3 3)";
@@ -59,7 +59,7 @@ fn multiplication() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_ne!(result.unwrap(), [[Token::Number(42.)]]);
+        assert_ne!(result.unwrap(), [[Token::Double(42.)]]);
     }
 }
 
@@ -71,7 +71,7 @@ fn division() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_eq!(result.unwrap(), [[Token::Number(0.8571428571428571)]]);
+        assert_eq!(result.unwrap(), [[Token::Double(0.8571428571428571)]]);
     }
 
     let code = "(/ 3 3)";
@@ -80,6 +80,6 @@ fn division() {
 
     assert!(result.is_ok());
     if result.is_ok() {
-        assert_ne!(result.unwrap(), [[Token::Number(0.8571428571428571)]]);
+        assert_ne!(result.unwrap(), [[Token::Double(0.8571428571428571)]]);
     }
 }
