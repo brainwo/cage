@@ -1,11 +1,7 @@
 [package]
-name = "cage"
+name = "cage_repl"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-
-[workspace]
-members = [
-   "repl"
-]
+cage = { path = "../"}
