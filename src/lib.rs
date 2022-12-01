@@ -1,4 +1,7 @@
-use std::{error::Error, fmt};
+mod error;
+
+use error::*;
+use std::error::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Token {
@@ -27,24 +30,6 @@ pub enum Token {
     Number(f64),
     Bool(bool),
 }
-
-#[derive(PartialEq, PartialOrd, Debug, Clone, Copy)]
-struct UnexpectedToken {
-    token: Token,
-    position: usize,
-}
-
-impl fmt::Display for UnexpectedToken {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Unexpected token {:?}\nPosition: {}",
-            self.token, self.position
-        )
-    }
-}
-
-impl Error for UnexpectedToken {}
 
 fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
     code.chars()
@@ -107,12 +92,34 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
             | Token::Min
             | Token::And
             | Token::Or
-            | Token::Not
-            | Token::Number(_)
-            | Token::Bool(_) => process_stack
-                .last_mut()
-                .ok_or(UnexpectedToken { token, position: i })?
-                .push(token),
+            | Token::Not => {
+                if !process_stack
+                    .last()
+                    .ok_or(UnexpectedToken { token, position: i })?
+                    .is_empty()
+                {
+                    return Err(Box::new(UnexpectedToken { token, position: i }));
+                }
+
+                process_stack
+                    .last_mut()
+                    .ok_or(UnexpectedToken { token, position: i })?
+                    .push(token);
+            }
+            Token::Number(_) | Token::Bool(_) => {
+                if process_stack
+                    .last()
+                    .ok_or(UnexpectedToken { token, position: i })?
+                    .is_empty()
+                {
+                    return Err(Box::new(UnexpectedToken { token, position: i }));
+                }
+
+                process_stack
+                    .last_mut()
+                    .ok_or(UnexpectedToken { token, position: i })?
+                    .push(token);
+            }
             Token::CloseBracket => {
                 let pop = process_stack
                     .pop()
@@ -176,7 +183,7 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                             .reduce(|acc, item| if acc >= item { item } else { acc })
                             .unwrap(),
                     )),
-                    _ => println!("Error"),
+                    _ => return Err(Box::new(UnexpectedToken { token, position: i })),
                 }
             }
         }
