@@ -1,3 +1,3 @@
-`cage`
+`wage`
 
-A Lisp written in Rust.
+A minimal Lisp written in Rust.

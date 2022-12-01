@@ -3,7 +3,7 @@ mod error;
 use error::*;
 use std::error::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum Token {
     OpenBracket,
     CloseBracket,
@@ -29,6 +29,9 @@ pub enum Token {
     // Number and variables
     Number(f64),
     Bool(bool),
+    String(String),
+    // Input output
+    Print,
 }
 
 fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
@@ -60,7 +63,11 @@ fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
                 "and" => Token::And,
                 "or" => Token::Or,
                 "not" => Token::Not,
+                "print" => Token::Print,
                 token => {
+                    if token.starts_with('\"') && token.ends_with('\"') {
+                        return Ok(Token::String(token.replace('\"', "")));
+                    }
                     let parse = token.parse::<f64>()?;
                     Token::Number(parse)
                 }
@@ -71,6 +78,8 @@ fn tokenize(code: &str) -> Result<Vec<Token>, Box<dyn Error>> {
 
 pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
     let stack: Vec<Token> = tokenize(code)?;
+
+    // println!("{:?}", stack);
 
     let mut process_stack: Vec<Vec<Token>> = Vec::new();
 
@@ -92,10 +101,14 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
             | Token::Min
             | Token::And
             | Token::Or
-            | Token::Not => {
+            | Token::Not
+            | Token::Print => {
                 if !process_stack
                     .last()
-                    .ok_or(UnexpectedToken { token, position: i })?
+                    .ok_or(UnexpectedToken {
+                        token: token.clone(),
+                        position: i,
+                    })?
                     .is_empty()
                 {
                     return Err(Box::new(UnexpectedToken { token, position: i }));
@@ -103,13 +116,19 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
 
                 process_stack
                     .last_mut()
-                    .ok_or(UnexpectedToken { token, position: i })?
+                    .ok_or(UnexpectedToken {
+                        token: token.clone(),
+                        position: i,
+                    })?
                     .push(token);
             }
-            Token::Number(_) | Token::Bool(_) => {
+            Token::Number(_) | Token::Bool(_) | Token::String(_) => {
                 if process_stack
                     .last()
-                    .ok_or(UnexpectedToken { token, position: i })?
+                    .ok_or(UnexpectedToken {
+                        token: token.clone(),
+                        position: i,
+                    })?
                     .is_empty()
                 {
                     return Err(Box::new(UnexpectedToken { token, position: i }));
@@ -117,16 +136,36 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
 
                 process_stack
                     .last_mut()
-                    .ok_or(UnexpectedToken { token, position: i })?
+                    .ok_or(UnexpectedToken {
+                        token: token.clone(),
+                        position: i,
+                    })?
                     .push(token);
             }
             Token::CloseBracket => {
-                let pop = process_stack
-                    .pop()
-                    .ok_or(UnexpectedToken { token, position: i })?;
+                let pop = process_stack.pop().ok_or(UnexpectedToken {
+                    token: token.clone(),
+                    position: i,
+                })?;
 
                 let instruction = pop.clone();
                 let instruction = instruction.first().unwrap();
+
+                if pop.iter().any(|token| matches!(token, Token::String(_))) {
+                    let list = pop
+                        .into_iter()
+                        .filter_map(|token| match token {
+                            Token::Number(num) => Some(num.to_string()),
+                            Token::Bool(bool) => Some(bool.to_string()),
+                            Token::String(string) => Some(string),
+                            _ => None,
+                        })
+                        .collect::<Vec<String>>();
+
+                    println!("{}", list.join(" "));
+
+                    break;
+                }
 
                 let list = pop
                     .into_iter()
@@ -189,6 +228,15 @@ pub fn eval(code: &str) -> Result<Vec<Vec<Token>>, Box<dyn Error>> {
                             .reduce(|acc, item| if acc >= item { item } else { acc })
                             .unwrap(),
                     )),
+                    Token::Print => {
+                        println!(
+                            "{}",
+                            list.into_iter()
+                                .map(|item| item.to_string())
+                                .collect::<Vec<String>>()
+                                .join(" ")
+                        )
+                    }
                     _ => return Err(Box::new(UnexpectedToken { token, position: i })),
                 }
             }

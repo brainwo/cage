@@ -1,4 +1,4 @@
-use cage::*;
+use wage::*;
 
 #[test]
 fn equal() {

@@ -2,7 +2,7 @@ use std::{error::Error, fmt};
 
 use crate::Token;
 
-#[derive(PartialEq, PartialOrd, Debug, Clone, Copy)]
+#[derive(PartialEq, PartialOrd, Debug, Clone)]
 pub struct UnexpectedToken {
     pub token: Token,
     pub position: usize,
